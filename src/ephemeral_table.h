@@ -2,6 +2,7 @@
 #include <map>
 #include <string>
 
+using namespace std;
 
 class EphemeralTable {
 
@@ -13,7 +14,7 @@ class EphemeralTable {
 
         bool set(string key, string value);
         string get(string key);
-        Iterator* getPrefix(string key);
+        string getPrefix(string key);
 
 
     private:
@@ -21,4 +22,4 @@ class EphemeralTable {
         map<string, string> table;
         EphemeralTable();
 
-}
+};

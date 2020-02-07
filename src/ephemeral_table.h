@@ -10,11 +10,11 @@ class EphemeralTable {
 
         ~EphemeralTable();
 
-        EphemeralTable getInstance();
+        EphemeralTable get_instance();
 
         bool set(string key, string value);
         string get(string key);
-        string getPrefix(string key);
+        string get_prefix(string key);
 
 
     private:

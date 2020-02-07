@@ -1,4 +1,5 @@
 #include<string>
+#include <ctime>
 
 using namespace std;
 
@@ -7,22 +8,31 @@ class Value {
     private:
 
         string value;
-        long timestamp;
+        int timestamp;
         bool deleted;
+
+        static int time = 0;
 
     public:
 
-        string getValue() {
+        string get_value() {
             return value;
         }
 
-        long getTime() {
+        long get_time() {
             return timestamp;
         }
 
-        bool isDeleted() {
+        bool is_deleted() {
             return deleted;      
         }
 
+        void set_value(string value) {
+            this.value = value;
+            this.timestamp = time++;
+        }
 
+        void mark_deleted() {
+            this.deleted = true;
+        }
 };

@@ -10,7 +10,7 @@ class Value {
         string value;
         int timestamp;
         bool deleted;
-        static int time = 0;
+        static int time;
 
     public:
 

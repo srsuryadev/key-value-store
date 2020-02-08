@@ -1,38 +1,47 @@
-#include<string>
 #include <ctime>
+#include "value.h"
 
 using namespace std;
 
-class Value {
+string Value::get_value() {
+    return this->value;
+}
 
-    private:
+long Value::get_time() {
+    return this->timestamp;
+}
 
-        string value;
-        int timestamp;
-        bool deleted;
+bool Value::is_deleted() {
+    return this->deleted;      
+}
 
-        static int time = 0;
+void Value::set_value(string value) {
+    this->value = value;
+    this->timestamp = time++;
+}
 
-    public:
+void Value::mark_deleted() {
+    this->deleted = true;
+}
 
-        string get_value() {
-            return value;
-        }
+void Value::write(ofstream out) {
 
-        long get_time() {
-            return timestamp;
-        }
+    size_t len = value.size();
+    out.write((char*)&len, sizeof(size_t));
+    out.write(value.c_str(), len);
+    out.write((char*)&timestamp, sizeof(long));
+    out.write((char*)&deleted, sizeof(bool));
+}
 
-        bool is_deleted() {
-            return deleted;      
-        }
+void Value::read(ifstream in) {
+    size_t len;
+    in.read((char*)&len, sizeof(size_t));
+    char* value_arr = new char[len + 1];
+    in.read(value_arr, len);
+    value_arr[len] = '\0';
+    this->value = value_arr;
+    delete [] value_arr;
 
-        void set_value(string value) {
-            this.value = value;
-            this.timestamp = time++;
-        }
-
-        void mark_deleted() {
-            this.deleted = true;
-        }
-};
+    in.read((char*)&timestamp, sizeof(long));
+    in.read((char*)&deleted, sizeof(bool));
+}

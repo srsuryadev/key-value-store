@@ -16,6 +16,8 @@ class Record {
     public:
         void set_key(string key);
         void set_value(Value value);
+        string get_key();
+        Value get_value();
         void write(ofstream out);
         void read(ifstream in);
 

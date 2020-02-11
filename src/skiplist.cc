@@ -96,7 +96,7 @@ vector<string> SkipList::get_keys_for_prefix(string prefix) {
 
 void SkipList::enumerate(vector<string>* strings, node* x, string prefix) {
 	int prefix_len = prefix.length();	
-	while (x = x->forward[0]) { 
+	while (x = x->forward[0]) {
 		int str_len = string(x->key).length();
 		if (prefix_len == str_len) {
 			if (string(x->key) == prefix) {
@@ -118,8 +118,5 @@ void SkipList::enumerate(vector<string>* strings, node* x, string prefix) {
 			// length of the prefix is greater, return
 			return;
 		}
-	} else {
-		// x is NULL, return
-		return;
 	}
 } // end SkipList::enumerate()

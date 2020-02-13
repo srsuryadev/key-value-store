@@ -12,6 +12,7 @@ class Record {
     private:
         string key;
         Value value;
+        unsigned int CalculateChecksum(Record);
 
     public:
         void set_key(string key);
@@ -19,10 +20,8 @@ class Record {
         string get_key();
         Value get_value();
         void write(ofstream *out);
-        void read(ifstream *in);
+        bool read(ifstream *in);
 
 };
-
-unsigned int CalculateChecksum(Record);
 
 #endif

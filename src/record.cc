@@ -27,7 +27,7 @@ void Record::write(ofstream *out) {
     out->write((char *) this, sizeof(*this));
 }
 
-void Record::read(ifstream *in) {
+bool Record::read(ifstream *in) {
     /*size_t len;
     in.read(&len, sizeof(size_t));
     char* value_arr = new char[len + 1];
@@ -36,17 +36,28 @@ void Record::read(ifstream *in) {
     this.value = value_arr;
     delete [] value_arr;
     value.read(in);*/
+    if(in->eof())
+        return false;
+
     unsigned int file_checksum;
     in->read((char *) &file_checksum, sizeof(file_checksum));
+    if(in->fail())
+        return false;
+
     in->read((char *) this, sizeof(*this));
+    if(in->fail())
+        return false;
+    
     if(file_checksum != CalculateChecksum(*this)) {
         cout<<"CHECKSUM MISMATCH\n";
+        return false;
     } else {
         cout<<"CHECKSUM MATCH\n";
+        return true;
     }
 }
 
-unsigned int CalculateChecksum(Record record) {
+unsigned int Record::CalculateChecksum(Record record) {
     boost::crc_32_type crc32;
     string key = record.get_key();
     crc32.process_bytes(key.data(), key.length());

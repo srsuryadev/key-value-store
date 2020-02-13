@@ -4,7 +4,7 @@ RM = rm -rf
 
 default: kvstore
 
-kvstore: kvstore.o value.o record.o main.o
+kvstore: kvstore.o value.o record.o wal.o# main.o
 	$(CC) $(CFLAGS) $^ -o $@
 
 kvstore.o: kvstore.cc #ephemeral_table.h log_table.h

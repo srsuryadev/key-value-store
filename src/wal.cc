@@ -1,11 +1,15 @@
 #include "wal.h"
-#include "helper.cc"
+
+WAL* WAL::wal = 0;
+mutex WAL::_mutex;
 
 WAL::WAL() {
     file_name = "log";
 }
 
-static WAL* WAL::GetInstance() {
+WAL* WAL::GetInstance() {
+    //To be thread safe
+    lock_guard<mutex> lock(WAL::_mutex);
     if (!wal) {
         wal = new WAL;
     }
@@ -21,12 +25,12 @@ void WAL::Close() {
 }
 
 bool WAL::Discard() {
-    if (remove(this->file_name)) {
+    if (remove(this->file_name.c_str())) {
         return true;
     }
     return false;
 }
 
 void WAL::Append(Record record) {
-    record.write(wal_out);
+    record.write(&wal_out);
 }

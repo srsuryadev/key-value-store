@@ -1,19 +1,22 @@
 #include "record.h"
-#include "helper.cc"
 #include <stdio.h>
+#include <mutex>
 
 class WAL {
+    private:
+        static WAL *wal;
+        static mutex _mutex;
+        string file_name;
+        ofstream wal_out;
 
-    static WAL *wal;
-    string file_name;
-    ofstream wal_out;
+        WAL();
 
-    WAL();
-
-    Record read() {
-        Record record;
-        return record->read(wal_out);
-    }
+        //Why is this needed here?
+        /*Record read() {
+            Record record;
+            record.read(&wal_out);
+            return record;
+        }*/
 
     public:
         static WAL* GetInstance();
@@ -38,8 +41,8 @@ class WAL {
                 }
 
                 Record Next(){
-                    return wal->read();
+                    //return wal->read();
                 }
-        }
+        };
 
 };

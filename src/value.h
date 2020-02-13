@@ -1,5 +1,6 @@
-#include<string>
-#include <ctime>
+#ifndef VALUE_H
+#define VALUE_H
+#include <string>
 #include <iostream>
 #include <fstream>
 using namespace std;
@@ -19,6 +20,10 @@ class Value {
         bool is_deleted();
         void set_value(string value);
         void mark_deleted();
+        //Not Required. Can be removed
         void write(ofstream out);
+        //Not Required. Can be removed
         void read(ifstream in);
 };
+
+#endif

@@ -1,7 +1,8 @@
-#include <ctime>
 #include "value.h"
 
 using namespace std;
+
+int Value::time = 0;
 
 string Value::get_value() {
     return this->value;
@@ -18,12 +19,14 @@ bool Value::is_deleted() {
 void Value::set_value(string value) {
     this->value = value;
     this->timestamp = time++;
+    this->deleted = false;
 }
 
 void Value::mark_deleted() {
     this->deleted = true;
 }
 
+//Not Required. Can be removed
 void Value::write(ofstream out) {
 
     size_t len = value.size();
@@ -33,6 +36,7 @@ void Value::write(ofstream out) {
     out.write((char*)&deleted, sizeof(bool));
 }
 
+//Not Required. Can be removed
 void Value::read(ifstream in) {
     size_t len;
     in.read((char*)&len, sizeof(size_t));

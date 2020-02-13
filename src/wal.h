@@ -1,4 +1,5 @@
 #include "record.h"
+#include "helper.cc"
 #include <stdio.h>
 
 class WAL {
@@ -9,7 +10,7 @@ class WAL {
 
     WAL();
 
-    Record read(){
+    Record read() {
         Record record;
         return record->read(wal_out);
     }

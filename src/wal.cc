@@ -1,4 +1,5 @@
 #include "wal.h"
+#include "helper.cc"
 
 WAL::WAL() {
     file_name = "log";

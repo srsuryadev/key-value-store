@@ -1,17 +1,17 @@
 CC = g++
 CFLAGS = -g -Wall
-RM = rm
+RM = rm -rf
 
 default: kvstore
 
-kvstore: kvstore.o value.o
-	$(CC) $(CFLAGS) -o kvstore kvstore.o value.o
+kvstore: kvstore.o value.o record.o main.o
+	$(CC) $(CFLAGS) $^ -o $@
 
-kvstore.o: kvstore.cc ephemeral_table.h log_table.h
-	$(CC) $(CFLAGS) -c kvstore.cc
+kvstore.o: kvstore.cc #ephemeral_table.h log_table.h
+	$(CC) $(CFLAGS) -c $^ 
 
-value.o: value.cc
-	$(CC) $(CFLAGS) -c value.cc
+%.o: %.cc
+	$(CC) $(CFLAGS) -c $<
 
 clean:
 	$(RM) kvstore *.o

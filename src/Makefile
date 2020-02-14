@@ -5,13 +5,13 @@ RM = rm -rf
 default: kvstore
 
 kvstore: kvstore.o value.o record.o wal.o main.o
-	$(CC) $(CFLAGS) $^ -o $@
+	$(CC) -L  $(CFLAGS) $^ -o $@
 
-kvstore.o: kvstore.cc #ephemeral_table.h log_table.h
-	$(CC) $(CFLAGS) -c $^ 
+kvstore.o: kvstore.cc log_table.h #ephemeral_table.h log_table.h
+	$(CC) -L  $(CFLAGS) -c $^ 
 
 %.o: %.cc
-	$(CC) $(CFLAGS) -c $<
+	$(CC) -L  $(CFLAGS) -c $<
 
 clean:
 	$(RM) kvstore *.o

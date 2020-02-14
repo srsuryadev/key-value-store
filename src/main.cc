@@ -1,8 +1,16 @@
-#include "wal.h"
-#include<iostream>
+//#include "wal.h"
+//#include "record.h"
+#include "log_table.h"
+#include <iostream>
 using namespace std;
 
 int main() {
+
+    LogTable *log_table = new LogTable();
+    cout << "good: " << log_table->file_name << endl;
+    return 0;
+
+    /*
     WAL *wal = WAL::GetInstance();
     wal->CreateWriteStream();
     
@@ -40,5 +48,5 @@ int main() {
 
     wal->CloseReadStream();
     wal->Discard();
-    return 0;
+    return 0;*/
 }

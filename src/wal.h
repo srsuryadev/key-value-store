@@ -9,7 +9,7 @@ class WAL {
         static WAL *wal;
         static mutex _mutex;
         string file_name;
-        ofstream wal_out;
+        FILE* wal_out;
         ifstream wal_in;
 
         WAL();

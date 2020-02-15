@@ -27,6 +27,12 @@ void Record::write(ofstream *out) {
     out->write((char *) this, sizeof(*this));
 }
 
+void Record::write(FILE* &out) {
+    unsigned int checksum = CalculateChecksum(*this);
+    fwrite(&checksum, sizeof(checksum), 1, out);
+    fwrite(this, sizeof(*this), 1, out);
+}
+
 bool Record::read(ifstream *in) {
     /*size_t len;
     in.read(&len, sizeof(size_t));

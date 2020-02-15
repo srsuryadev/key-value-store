@@ -16,8 +16,9 @@ WAL* WAL::GetInstance() {
     return wal;
 }
 
+//Truncates the existing wal file if existed
 void WAL::CreateWriteStream() {
-    wal_out.open(this->file_name, ofstream::out);
+    wal_out = fopen(this->file_name.c_str(), "w");
 }
 
 void WAL::OpenReadStream() {
@@ -25,7 +26,7 @@ void WAL::OpenReadStream() {
 }
 
 void WAL::CloseWriteStream() {
-    wal_out.close();
+    fclose(wal_out);
 }
 
 void WAL::CloseReadStream() {
@@ -40,7 +41,11 @@ bool WAL::Discard() {
 }
 
 void WAL::Append(Record record) {
-    record.write(&wal_out);
+    //To be thread safe
+    _mutex.lock();
+    record.write(wal_out);
+    _mutex.unlock();
+    fsync(fileno(wal_out));
 }
 
 WAL::Iterator::Iterator(WAL *_wal) {

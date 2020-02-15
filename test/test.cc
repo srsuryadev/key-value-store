@@ -13,14 +13,12 @@ using namespace std;
 #define GET_PREFIX 2
 
 
-void gen_random(char *s, int len) {
+void generate_random_string(char *s, int len) {
    
 
     static const char valid_chars[] =
-        "0123456789"
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        "abcdefghijklmnopqrstuvwxyz"
-        "_$-@#:;,.";
+        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        "012345678_$-@#:;,.";
     int i;
     for (i = 0; i < len; i++) {
         s[i] = valid_chars[rand() % 61];
@@ -28,13 +26,13 @@ void gen_random(char *s, int len) {
     s[i] = '\0';
 }
 
- string gen_random() {
+ string generate_random_string() {
     int len = 0;
     
     while (len == 0)
         len = rand() % MAX_LEN_STRING;
     char* s = (char*) malloc(len * sizeof(char));
-    gen_random(s, len);
+    generate_random_string(s, len);
     string result = s;
     return result;
  }
@@ -49,8 +47,8 @@ void *call(void *threadid) {
     while(count < NUM_OP_PER_THREAD) {
         int op = rand() % 3;
         if (op == WRITE_OP) {
-            string key = gen_random();
-            string value = gen_random();
+            string key = generate_random_string();
+            string value = generate_random_string();
             
             keys.push_back(key);
             cout<< "key: " << key << " Value: " << value << endl;

@@ -1,3 +1,5 @@
+#ifndef WAL_H
+#define WAL_H
 #include "record.h"
 #include <stdio.h>
 #include <mutex>
@@ -33,3 +35,5 @@ class WAL {
         };
 
 };
+
+#endif

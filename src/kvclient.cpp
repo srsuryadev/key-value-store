@@ -1,9 +1,14 @@
-#include <string>
 #include <iostream>
-using namespace std;
-
+#include <cstdlib>
+#include <pthread.h>
+#include <vector>
 #include <grpcpp/grpcpp.h>
 #include "kvstore.grpc.pb.h"
+using namespace std;
+
+#define WRITE_OP 0
+#define GET_OP 1
+#define GET_PREFIX 2
 
 using grpc::Channel;
 using grpc::ClientContext;
@@ -15,6 +20,34 @@ using kvstore::KeyRequest;
 using kvstore::KeyValueRequest;
 using kvstore::SetResponse;
 using kvstore::ValueResponse;
+
+int NUM_THREADS;
+int NUM_OP_PER_THREAD;
+int MAX_LEN_STRING;
+int MODE;
+string ADDRESS;
+
+void generate_random_string(char *s, int len) {
+    static const char valid_chars[] =
+        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        "012345678_$-@#:;,.";
+    int i;
+    for (i = 0; i < len; i++) {
+        s[i] = valid_chars[rand() % 61];
+    }
+    s[i] = '\0';
+}
+
+string generate_random_string() {
+    int len = 0;
+    
+    while (len == 0)
+        len = rand() % MAX_LEN_STRING;
+    char* s = (char*) malloc(len * sizeof(char) + 1);
+    generate_random_string(s, len);
+    string result = s;
+    return result;
+}
 
 class KVStoreClient {
     private:
@@ -80,29 +113,59 @@ void printStringVector(vector<string> &V) {
     cout<<endl;
 }
 
-void runClient() {
-    const string address("0.0.0.0:5000");
+void* runClient(void *args) {
+    const string address(ADDRESS);
     KVStoreClient KVStoreClient(grpc::CreateChannel(
         address, 
         grpc::InsecureChannelCredentials()
     ));
-    string key = "ABCD";
-    string value = "1234";
-    cout<<"Setting key: "<<key<<" Value: "<<value<<endl;
-    cout<<KVStoreClient.set(key, value)<<endl;
+    int i;
+    vector<string> keys;
+    for(i=0; i<NUM_OP_PER_THREAD; i++) {
+        int op = WRITE_OP;
+        if(MODE == 2) {
+            op = rand() % 2;
+        } else if (MODE == 1) {
+            op = GET_OP;
+        }
 
-    cout<<"Getting key: "<<key<<endl;
-    cout<<KVStoreClient.get(key)<<endl;
-
-    cout<<"Getting Prefixes for key: "<<key<<endl;
-    vector<string> result;
-    if(KVStoreClient.getPrefix(key, result)) {
-        printStringVector(result);
+        if (op == WRITE_OP) {
+            string key = generate_random_string();
+            string value = generate_random_string();          
+            keys.push_back(key);
+            cout<< "Setting --- key: " << key << " Value: " << value << endl;
+            cout<<"Success: "<<KVStoreClient.set(key, value)<<endl;
+        } else if (op == GET_OP && keys.size() > 0) {
+            int index = rand() % keys.size();
+            string key = keys[index];
+            cout << "Getting --- value: " << KVStoreClient.get(key) << " for key " << key << endl;
+        }
     }
+    return 0;
 }
 
 int main(int argc, char *argv[]) {
-    runClient();
-    
+    if(argc != 6) {
+        cout<<"Insufficient number of arguments\n";
+        return 0;
+    }
+    ADDRESS = argv[1];
+    NUM_THREADS = stoi(argv[2]);
+    NUM_OP_PER_THREAD = stoi(argv[3]);
+    MAX_LEN_STRING = stoi(argv[4]);
+    MODE = stoi(argv[5]);
+
+    pthread_t threads[NUM_THREADS];
+    int i;
+    for(i=0; i<NUM_THREADS; i++) {
+        int rc = pthread_create(&threads[i], NULL, runClient, NULL);
+        if (rc) {
+            cout << "Not able to create thread" << endl;
+            exit(-1);
+        }
+    }
+    for(i=0; i<NUM_THREADS; i++) {
+        pthread_join(threads[i], NULL);
+    }
     return 0;
 }

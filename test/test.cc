@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <pthread.h>
 #include <vector>
+#include "skiplist.h"
 
 using namespace std;
 
@@ -31,33 +32,31 @@ void generate_random_string(char *s, int len) {
     
     while (len == 0)
         len = rand() % MAX_LEN_STRING;
-    char* s = (char*) malloc(len * sizeof(char));
+    char* s = (char*) malloc(len * sizeof(char) + 1);
     generate_random_string(s, len);
     string result = s;
     return result;
  }
 
 
-void *call(void *threadid) {
-    long tid;
-    tid = (long)threadid;
-    
+void *call(void *listptr) {
+    SkipList* list = (SkipList*)listptr;     
     vector<string> keys;
     int count = 0;
     while(count < NUM_OP_PER_THREAD) {
         int op = rand() % 3;
         if (op == WRITE_OP) {
             string key = generate_random_string();
-            string value = generate_random_string();
-            
+            string value = generate_random_string();          
             keys.push_back(key);
             cout<< "key: " << key << " Value: " << value << endl;
-            // TODO: CALL SET() in KVSTORE
+            list->put(key, value);
         } else if (op == GET_OP && keys.size() > 0) {
             int index = rand() % keys.size();
-            // TODO: CALL GET() in KVSTORE
+            string key = keys[index];
+            cout << "value: " << list->get(key) << " for key " << key << endl;
         } else if (op == GET_PREFIX && keys.size() > 0) {  
-            // TODO: CALL GETPREFIX in KVSTORE
+            // Testing for get() suffices if deletion isn't done
         }
         count++;
     }
@@ -67,9 +66,9 @@ void *call(void *threadid) {
 
 int main () {
    pthread_t threads[NUM_THREADS];
-   
+   SkipList a;
    for( int i = 0; i < NUM_THREADS; i++ ) {
-      int rc = pthread_create(&threads[i], NULL, call, (void *)i);
+      int rc = pthread_create(&threads[i], NULL, call, (void *)&a);
       
       if (rc) {
          cout << "Not able to create thread" << endl;

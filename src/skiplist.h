@@ -46,6 +46,9 @@
 #include <string>
 #include <random>
 #include <atomic>
+#include <list>
+#include "record.h"
+#include "value.h"
 
 // Adapted from linux/blob/master/arch/x86/include/asm/cmpxchg.h
 #define x86_64_cmpxchg(ptr, old, new, lock)                      \
@@ -121,12 +124,13 @@ struct insert_node_res {
 
 class SkipList {
     public:
+        std::atomic<int> count;
         ~SkipList();
         SkipList();
         void put(string key, string value);
         string get(string key);
         vector<string> get_keys_for_prefix(string prefix);
-        std::atomic<int> count;
+        list<Record> get_all_data();
 
     private:
         node* head_tower[MAXLEVEL + 1];

@@ -446,6 +446,21 @@ vector<string> SkipList::get_keys_for_prefix(string prefix) {
     return strings;
 } // end SkipList::get_keys_for_prefix()
 
+list<Record> SkipList::get_all_data() {
+    list<Record> ret_val;
+    node* x = head->successor;
+    while ((uintptr_t)x != (uintptr_t)tail) {
+        Record rec;
+        Value val;
+        val.set_value(string(x->value));
+        rec.set_key(string(x->key));
+        rec.set_value(val);
+        x = x->successor;
+        ret_val.push_back(rec);
+    }
+    return ret_val;  
+} 
+
 node* SkipList::deletion(string key) {
     return NULL;
 }

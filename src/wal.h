@@ -1,6 +1,7 @@
 #ifndef WAL_H
 #define WAL_H
 #include "record.h"
+#include <unistd.h>
 #include <stdio.h>
 #include <mutex>
 

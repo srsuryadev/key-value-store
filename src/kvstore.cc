@@ -74,12 +74,12 @@ bool KeyValueStore::set(string key, string value) {
 string KeyValueStore::get(string key) {
     cout<<"Received GET request --- Key: "<<key<<endl;
     string value = current_skip_list->get(key);
-    if (value == NULL && prev_skip_list != 0) {
+    if (value.size() == 0 && prev_skip_list != 0) {
         value = prev_skip_list->get(key);
-        if (value != NULL && value.size() > 0)
+        if (value.size() > 0)
             return value;
     }
-    if (value == NULL || value.size() == 0) {
+    if (value.size() == 0) {
         Record* record = LogTable::Get(key);
         return record->get_value().get_value();
     }

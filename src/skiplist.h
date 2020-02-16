@@ -45,23 +45,24 @@
 #include <stdlib.h>
 #include <string>
 #include <random>
+#include <atomic>
 
 // Adapted from linux/blob/master/arch/x86/include/asm/cmpxchg.h
-#define x86_64_cmpxchg(ptr, old, new, lock)			           \
-({									                           \
-	volatile uintptr_t __ret;					               \
-	volatile uintptr_t __old = (old);				           \
-	volatile uintptr_t __new = (new);                          \
-	volatile uintptr_t *__ptr = (volatile uintptr_t *)(ptr);   \
-	asm volatile(lock "cmpxchgq %2,%1"			               \
-			   	: "=a" (__ret), "+m" (*__ptr)		           \
-			    : "r" (__new), "0" (__old)			           \
-			    : "memory");                                   \
-	__ret;                                                     \
+#define x86_64_cmpxchg(ptr, old, new, lock)                      \
+({                                                               \
+    volatile uintptr_t __ret;                                    \
+    volatile uintptr_t __old = (old);                            \
+    volatile uintptr_t __new = (new);                            \
+    volatile uintptr_t *__ptr = (volatile uintptr_t *)(ptr);     \
+    asm volatile(lock "cmpxchgq %2,%1"                           \
+                   : "=a" (__ret), "+m" (*__ptr)                 \
+                : "r" (__new), "0" (__old)                       \
+                : "memory");                                     \
+    __ret;                                                       \
 })
 
-#define CAS(ptr, old, new)				\
-	x86_64_cmpxchg((ptr), (old), (new), "lock; ")
+#define CAS(ptr, old, new)                \
+    x86_64_cmpxchg((ptr), (old), (new), "lock; ")
 
 using namespace std;
 
@@ -86,72 +87,73 @@ typedef struct insert_node_res insert_node_res;
 #define PT(x) (node*)(void*)(((uintptr_t)x >> 2) << 2)
 
 struct node {
-	char key[KEYLENGTH];
-	node* back_link;
-	node* successor;
-	node* up;
-	node* down;
-	node* tower_root;
-	char* value;
+    char key[KEYLENGTH];
+    node* back_link;
+    node* successor;
+    node* up;
+    node* down;
+    node* tower_root;
+    char* value;
 };
 
 struct find_start_res {
-	node* lowest_node;
-	char level;
+    node* lowest_node;
+    char level;
 };
 
 struct search_res {
-	node* prev;
-	node* next;
+    node* prev;
+    node* next;
 };
 
 struct try_flag_node_res {
-	node* prev_node;
-	char res;
-	bool success;
+    node* prev_node;
+    char res;
+    bool success;
 };
 
 struct insert_node_res {
-	node* prev;
-	node* new_node;
+    node* prev;
+    node* new_node;
 };
 
 
 
 class SkipList {
-	public:
-		~SkipList();
-		SkipList();
-		void put(string key, string value);
-		string get(string key);
-		vector<string> get_keys_for_prefix(string prefix);
+    public:
+        ~SkipList();
+        SkipList();
+        void put(string key, string value);
+        string get(string key);
+        vector<string> get_keys_for_prefix(string prefix);
+        std::atomic<int> count;
 
-	private:
-		node* head_tower[MAXLEVEL + 1];
-		node* tail_tower[MAXLEVEL + 1];
-		node* head;
-		node* tail;
-		char level;
-		double probability = 0.5;
-		char random_level();
-		insert_node_res insert_node(node* new_node, node* prev_node, 
-			node* next_node, string value, char level);
-		node* insert(string key, string value);
-		node* create_new_node(string key, string value, node* down, 
-			node* tower_root);
-		node* create_new_node(string key, node* down, node* tower_root);
-		try_flag_node_res try_flag_node(node* prev_node, node* target_node);
-		search_res search_right_other(string key, node* current_node, 
-			char level);
-		search_res search_right(string key, node* current_node, 
-			char level);
-		find_start_res find_start(char level);
-		search_res search_to_level(string key, char level);
-		node* search(string key);
-		node* deletion(string key);
-		node* deletion_node(node* prev_node, node* del_node);
-		void help_marked(node* prev_node, node* del_node);
-		void help_flagged(node* prev_node, node* del_node);
-		void try_mark(node* del_node);
-		void enumerate(vector<string>* strings, node* x, string prefix);
+    private:
+        node* head_tower[MAXLEVEL + 1];
+        node* tail_tower[MAXLEVEL + 1];
+        node* head;
+        node* tail;
+        char level;
+        double probability = 0.5;
+        char random_level();
+        insert_node_res insert_node(node* new_node, node* prev_node, 
+            node* next_node, string value, char level);
+        node* insert(string key, string value);
+        node* create_new_node(string key, string value, node* down, 
+            node* tower_root);
+        node* create_new_node(string key, node* down, node* tower_root);
+        try_flag_node_res try_flag_node(node* prev_node, node* target_node);
+        search_res search_right_other(string key, node* current_node, 
+            char level);
+        search_res search_right(string key, node* current_node, 
+            char level);
+        find_start_res find_start(char level);
+        search_res search_to_level(string key, char level);
+        node* search(string key);
+        node* deletion(string key);
+        node* deletion_node(node* prev_node, node* del_node);
+        void help_marked(node* prev_node, node* del_node);
+        void help_flagged(node* prev_node, node* del_node);
+        void try_mark(node* del_node);
+        void enumerate(vector<string>* strings, node* x, string prefix);
 };

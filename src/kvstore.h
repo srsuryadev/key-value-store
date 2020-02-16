@@ -24,8 +24,9 @@ class KeyValueStore {
     private:
 
         static mutex _mutex;
-        
+
         SkipList* current_skip_list;
+        SkipList* prev_skip_list;
         SkipList* first_skip_list;
         SkipList* second_skip_list;
 };

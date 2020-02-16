@@ -144,6 +144,9 @@ class LogTable {
                 }
 
                 // TODO: if present, seek to the nearest offset using the sparse index
+                
+                //Shouldn't this return a list rather than a single value?
+                //Is it Guaranteed that a key would be present only once in a log file?
                 Record* temp_record = it->Search(key);
                 if (temp_record && !temp_record->get_value().is_deleted()) {
                     if (record) {

@@ -6,6 +6,7 @@
 #include "skiplist.h"
 #include "log_table.h"
 #include "wal.h"
+#include "value.h"
 #include <mutex>
 
 using namespace std;

@@ -5,11 +5,11 @@ LDFLAGS = -L/usr/local/lib `pkg-config --libs protobuf grpc++`\
            -Wl, -lgrpc++_reflection -Wl,\
            -ldl
 CPPFLAGS += `pkg-config --cflags protobuf grpc`
-CXXFLAGS += -std=c++11
+CXXFLAGS += -std=c++17
 
 GRPC_CPP_PLUGIN = grpc_cpp_plugin
 GRPC_CPP_PLUGIN_PATH ?= `which $(GRPC_CPP_PLUGIN)`
-DB = kvstore.o value.o record.o wal.o log_table.o
+DB = kvstore.o value.o record.o wal.o log_table.o skiplist.o
 
 default: kvclient kvserver
 

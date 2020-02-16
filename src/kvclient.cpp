@@ -25,6 +25,7 @@ int NUM_THREADS;
 int NUM_OP_PER_THREAD;
 int MAX_LEN_STRING;
 int MODE;
+string ADDRESS;
 
 void generate_random_string(char *s, int len) {
     static const char valid_chars[] =
@@ -113,7 +114,7 @@ void printStringVector(vector<string> &V) {
 }
 
 void* runClient(void *args) {
-    const string address("0.0.0.0:5000");
+    const string address(ADDRESS);
     KVStoreClient KVStoreClient(grpc::CreateChannel(
         address, 
         grpc::InsecureChannelCredentials()
@@ -144,14 +145,15 @@ void* runClient(void *args) {
 }
 
 int main(int argc, char *argv[]) {
-    if(argc != 5) {
+    if(argc != 6) {
         cout<<"Insufficient number of arguments\n";
         return 0;
     }
-    NUM_THREADS = stoi(argv[1]);
-    NUM_OP_PER_THREAD = stoi(argv[2]);
-    MAX_LEN_STRING = stoi(argv[3]);
-    MODE = stoi(argv[4]);
+    ADDRESS = argv[1];
+    NUM_THREADS = stoi(argv[2]);
+    NUM_OP_PER_THREAD = stoi(argv[3]);
+    MAX_LEN_STRING = stoi(argv[4]);
+    MODE = stoi(argv[5]);
 
     pthread_t threads[NUM_THREADS];
     int i;

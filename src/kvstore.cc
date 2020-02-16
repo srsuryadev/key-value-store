@@ -17,7 +17,7 @@ KeyValueStore::KeyValueStore() {
 
     // If the WAL has records use it to recover
     WAL *wal = WAL::GetInstance();
-    WAL::Iterator *it = new Iterator(wal);
+    WAL::Iterator *it = new WAL::Iterator(wal);
     while (it->HasNext()) {
         Record record = it->Next();
         string key = record.get_key();
@@ -35,7 +35,9 @@ bool KeyValueStore::set(string key, string value) {
 
     Record record;
     record.set_key(key);
-    record.get_value(value); 
+    Value _val;
+    _val.set_value(value);
+    record.set_value(_val);
     wal->Append(record);
 
     current_skip_list->put(key, value);
@@ -56,7 +58,7 @@ bool KeyValueStore::set(string key, string value) {
         // the skiplist contents to the logtable;
         LogTable logtable;
 
-        List<Record> records = prev_skip_list->get_all_data();
+        list<Record> records = prev_skip_list->get_all_data();
         logtable.Write(records);
         //Truncate the existing WAL and create a fresh
         wal->OpenReadStream();
@@ -68,8 +70,8 @@ bool KeyValueStore::set(string key, string value) {
 string KeyValueStore::get(string key) {
     cout<<"Received GET request --- Key: "<<key<<endl;
     string value = current_skip_list->get(key);
-    if (value == NULL || value.size() == 0) {
-        Record* record = LogTable::Search(key);
+    if (value.size() == 0) {
+        Record* record = LogTable::Get(key);
         return record->get_value().get_value();
     }
     return current_skip_list->get(key);

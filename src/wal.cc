@@ -18,7 +18,9 @@ WAL* WAL::GetInstance() {
 
 //Truncates the existing wal file if existed
 void WAL::CreateWriteStream() {
+     _mutex.lock();
     wal_out = fopen(this->file_name.c_str(), "w");
+     _mutex.unlock();
 }
 
 void WAL::OpenReadStream() {
@@ -34,9 +36,12 @@ void WAL::CloseReadStream() {
 }
 
 bool WAL::Discard() {
+    //To be thread safe
+    _mutex.lock();
     if (remove(this->file_name.c_str())) {
         return true;
     }
+     _mutex.unlock();
     return false;
 }
 

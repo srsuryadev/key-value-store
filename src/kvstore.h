@@ -4,6 +4,10 @@
 #include <iostream>
 #include <vector>
 #include "skiplist.h"
+#include "log_table.h"
+#include "wal.h"
+#include <mutex>
+
 using namespace std;
 
 // count at which to abandon current skiplist
@@ -17,6 +21,9 @@ class KeyValueStore {
         vector<string> get_prefix(string prefix_key);
 
     private:
+
+        static mutex _mutex;
+        
         SkipList* current_skip_list;
         SkipList* first_skip_list;
         SkipList* second_skip_list;

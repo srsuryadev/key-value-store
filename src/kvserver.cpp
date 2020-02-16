@@ -1,5 +1,6 @@
 #include <string>
 #include <iostream>
+#include "kvstore.h"
 using namespace std;
 
 #include <grpcpp/grpcpp.h>
@@ -18,19 +19,27 @@ using kvstore::SetResponse;
 using kvstore::ValueResponse;
 
 class KVStoreImpl final : public KVStore::Service {
+    private:
+        KeyValueStore db;
+
     public:
+
         Status set(ServerContext *context, const KeyValueRequest *key_val_req, SetResponse *set_res) override {
             string key = key_val_req->key();
             string value = key_val_req->value();
-            cout<<"Received SET request --- Key: "<<key<<" Value: "<<value<<endl;
-            set_res->set_issuccessful(true);
+
+            bool result = db.set(key, value);
+            set_res->set_issuccessful(result);
+            
             return Status::OK;
         }
 
         Status get(ServerContext *context, const KeyRequest *key_req, ValueResponse *val_res) override {
             string key = key_req->key();
-            cout<<"Received GET request --- Key: "<<key<<endl;
-            val_res->set_value("Sample Value");
+            string result = db.get(key);
+            
+            val_res->set_value(result);
+            
             return Status::OK;
         }
 

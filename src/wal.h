@@ -1,3 +1,5 @@
+#ifndef WAL_H
+#define WAL_H
 #include "record.h"
 #include <stdio.h>
 #include <mutex>
@@ -7,7 +9,7 @@ class WAL {
         static WAL *wal;
         static mutex _mutex;
         string file_name;
-        ofstream wal_out;
+        FILE* wal_out;
         ifstream wal_in;
 
         WAL();
@@ -33,3 +35,5 @@ class WAL {
         };
 
 };
+
+#endif

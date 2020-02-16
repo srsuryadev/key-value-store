@@ -1,14 +1,11 @@
+#include "kvstore.h"
 
-#include <string>
-#include "ephemeral_table.h"
-#include "log_table.h"
+bool KeyValueStore::set(string key, string value) {
+    cout<<"Received SET request --- Key: "<<key<<" Value: "<<value<<endl;
+    return true;
+}
 
-using namespace std;
-
-class KeyValueStore {
-
-    public:
-
-        bool set(string key, string value);
-        string get(string key);
-};
+string KeyValueStore::get(string key) {
+    cout<<"Received GET request --- Key: "<<key<<endl;
+    return "Sample Value";
+}

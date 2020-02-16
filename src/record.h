@@ -5,6 +5,7 @@
 #include <fstream>
 #include <iostream>
 #include <boost/crc.hpp>
+#include <stdio.h>
 using namespace std;
 
 class Record {
@@ -20,6 +21,7 @@ class Record {
         string get_key();
         Value get_value();
         void write(ofstream *out);
+        void write(FILE* &out);
         bool read(ifstream *in);
 
 };

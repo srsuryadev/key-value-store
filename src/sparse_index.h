@@ -43,6 +43,7 @@ class SparseIndex {
 
         void Write() {
             out_index_.write((char *) this, sizeof(*this));
+            out_index_.flush();
         }
 
         ~SparseIndex() {

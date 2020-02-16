@@ -3,6 +3,7 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <ctime>
 using namespace std;
 
 class Value {
@@ -11,7 +12,6 @@ class Value {
         string value;
         int timestamp;
         bool deleted;
-        static int time;
 
     public:
 

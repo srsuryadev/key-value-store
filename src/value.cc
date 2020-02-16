@@ -2,7 +2,6 @@
 
 using namespace std;
 
-int Value::time = 0;
 
 string Value::get_value() {
     return this->value;
@@ -18,7 +17,7 @@ bool Value::is_deleted() {
 
 void Value::set_value(string value) {
     this->value = value;
-    this->timestamp = time++;
+    this->timestamp = time(0);
     this->deleted = false;
 }
 

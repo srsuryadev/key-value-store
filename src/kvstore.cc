@@ -54,9 +54,11 @@ bool KeyValueStore::set(string key, string value) {
         if ((uintptr_t)current_skip_list == (uintptr_t)first_skip_list) {
             current_skip_list = second_skip_list;
             prev_skip_list = first_skip_list;
+            first_skip_list = new SkipList();
         } else {
             current_skip_list = first_skip_list;
             prev_skip_list = second_skip_list;
+            second_skip_list = new SkipList();
         }
         _mutex.unlock();
         
@@ -69,6 +71,7 @@ bool KeyValueStore::set(string key, string value) {
         logtable.Write(records);
        
         // reset the prevskip list
+        delete prev_skip_list;
         prev_skip_list = 0;
         //Truncate the existing WAL and create a fresh
         wal->OpenReadStream();

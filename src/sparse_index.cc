@@ -15,7 +15,12 @@ SparseIndex::SparseIndex(string id, bool is_write) {
 }
 
 int SparseIndex::GetOffset(string key) {
-    return sparse_index_.lower_bound(key)->second;
+    auto it = sparse_index_.upper_bound(key);
+    if(it == sparse_index_.begin())
+        return 0;
+    it--;
+    cout<<"Returning offset: "<<it->second<<endl;
+    return it->second;
 }
 
 void SparseIndex::put(string key, int offset) {

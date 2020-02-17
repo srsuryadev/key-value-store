@@ -11,7 +11,7 @@ class WAL {
         static mutex _mutex;
         string file_name;
         FILE* wal_out;
-        ifstream wal_in;
+        FILE* wal_in;
 
         WAL();
 
@@ -28,6 +28,7 @@ class WAL {
             private:
                 WAL *wal;
                 Record *next_record;
+                size_t file_size;
 
             public:
                 Iterator(WAL*);
@@ -38,3 +39,4 @@ class WAL {
 };
 
 #endif
+

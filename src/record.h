@@ -22,8 +22,10 @@ class Record {
         Value get_value();
         void write(ofstream *out);
         void write(FILE* &out);
+        bool read(FILE* &in);
         bool read(ifstream *in);
 
 };
 
 #endif
+

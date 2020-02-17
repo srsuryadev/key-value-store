@@ -18,9 +18,10 @@ Value Record::get_value() {
 
 void Record::write(ofstream *out) {
     unsigned int checksum = CalculateChecksum(*this);
-    (*out) << checksum;
-    (*out) << key.size();
-    out->write(key.data(), key.size());
+    out->write((char *) &checksum, sizeof(checksum));
+    size_t key_size = key.size();
+    out->write((char *) &key_size, sizeof(key_size));
+    out->write((char *) key.data(), key_size);
     string val = value.get_value();
     (*out) << val.size();
     out->write(val.data(), val.size());
@@ -41,19 +42,19 @@ void Record::write(FILE* &out) {
     fwrite(&ts, sizeof(ts), 1, out);
     bool deleted_flag = value.is_deleted();
     fwrite(&deleted_flag, sizeof(deleted_flag), 1, out);
-cout<<"File write complete\n";
 }
 
 bool Record::read(ifstream *in) {
-cout<<"Reading REcord\n";
-    //if(in->eof())
-    //    return false;
+    cout<<in->eof()<<endl;
+    if(in->eof())
+        return false;
 
     unsigned int file_checksum;
     (*in) >> file_checksum;
+    cout<<in->fail()<<endl;
     if(in->fail())
         return false;
-cout<<"Checksum read\n";    
+    cout<<file_checksum<<endl;
     int str_size;
     (*in) >> str_size;
     if(in->fail())
@@ -63,7 +64,6 @@ cout<<"Checksum read\n";
     in->read(&key[0], str_size);
     if(in->fail())
         return false;
-cout<<"Key read\n";
 
     (*in) >> str_size;
     if(in->fail())
@@ -73,19 +73,72 @@ cout<<"Key read\n";
     in->read(&val[0], str_size);
     if(in->fail())
         return false;
-cout<<"Val read\n";
 
     long ts;
     (*in) >> ts;
     if(in->fail())
         return false;
-cout<<"Ts read\n";
 
     bool delete_flag;
     (*in) >> delete_flag;
     if(in->fail())
         return false;
-cout<<"Flag read\n";
+
+    Value value = Value(val, ts, delete_flag);
+    this->key = key;
+    this->value = value;
+    
+    if(file_checksum != CalculateChecksum(*this)) {
+        cout<<"CHECKSUM MISMATCH\n";
+        return false;
+    } else {
+        cout<<"CHECKSUM MATCH\n";
+        return true;
+    }
+}
+
+bool Record::read(FILE* &in) {
+    //cout<<in->eof()<<endl;
+    if(feof(in))
+        return false;
+
+    unsigned int file_checksum;
+    size_t x = fread(&file_checksum, sizeof(file_checksum), 1, in);
+    //cout<<in->fail()<<endl;
+    if(x == 0 && (ferror(in) || feof(in)))
+        return false;
+    //cout<<file_checksum<<endl;
+
+    int str_size;
+    x = fread(&str_size, sizeof(str_size), 1, in);
+    if(x == 0 && (ferror(in) || feof(in)))
+        return false;
+
+    string key;
+    key.resize(str_size);
+    x = fread(&key[0], str_size, 1, in);
+    if(x == 0 && (ferror(in) || feof(in)))
+        return false;
+
+    x = fread(&str_size, sizeof(str_size), 1, in);
+    if(x == 0 && (ferror(in) || feof(in)))
+        return false;
+
+    string val;
+    val.resize(str_size);
+    x = fread(&val[0], str_size, 1, in);
+    if(x == 0 && (ferror(in) || feof(in)))
+        return false;
+
+    long ts;
+    x = fread(&ts, sizeof(ts), 1, in);
+    if(x == 0 && (ferror(in) || feof(in)))
+        return false;
+
+    bool delete_flag;
+    x = fread(&delete_flag, sizeof(delete_flag), 1, in);
+    if(x == 0 && (ferror(in) || feof(in)))
+        return false;
 
     Value value = Value(val, ts, delete_flag);
     this->key = key;

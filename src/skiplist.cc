@@ -295,8 +295,9 @@ node* SkipList::create_new_node(string key, string value, node* down,
     x->key = x_key;
     memset(x->key, 0, KEYLENGTH);
     memcpy(x->key, key.c_str(), key.length());
-    char* val = (char*)aligned_alloc(CACHE_LINE_SIZE, value.length());
+    char* val = (char*)aligned_alloc(CACHE_LINE_SIZE, value.length() + 1);
     memcpy(val, value.c_str(), value.length());
+    val[value.length()] = '\0';
     x->up = NULL;
     x->value = val;
     x->down = NULL;
@@ -324,8 +325,9 @@ node* SkipList::insert(string key, string value) {
         // update value and return DUPLICATE_KEY
         //std::free(prev_node->value);
         prev_node->value = (char*)aligned_alloc(CACHE_LINE_SIZE, 
-            value.length());
+            value.length() + 1);
         memcpy(prev_node->value, value.c_str(), value.length());
+        prev_node->value[value.length()] = '\0';
         return (node*)(void*)DUPLICATE_KEY;
     }
     node* new_rnode = create_new_node(key, value, NULL, NULL);
@@ -369,8 +371,9 @@ insert_node_res SkipList::insert_node(node* new_node, node* prev_node,
     if (string(prev_node->key) == string(new_node->key)) {
         std::free(prev_node->value);
         prev_node->value = 
-            (char*)aligned_alloc(CACHE_LINE_SIZE, value.length());
+            (char*)aligned_alloc(CACHE_LINE_SIZE, value.length() + 1);
         memcpy(prev_node->value, value.c_str(), value.length());
+        prev_node->value[]
         ret_val.prev = prev_node;
         ret_val.new_node = ((node*)(void*)DUPLICATE_KEY);
         return ret_val;
@@ -403,8 +406,9 @@ insert_node_res SkipList::insert_node(node* new_node, node* prev_node,
         if (string(prev_node->key) == string(new_node->key)) {
             std::free(prev_node->value);
             prev_node->value = 
-                (char*)aligned_alloc(CACHE_LINE_SIZE, value.length());
+                (char*)aligned_alloc(CACHE_LINE_SIZE, value.length() + 1);
             memcpy(prev_node->value, value.c_str(), value.length());
+            prev_node->value[value.length()] = '\0';
             ret_val.prev = prev_node;
             ret_val.new_node = ((node*)(void*)DUPLICATE_KEY);
             return ret_val;            

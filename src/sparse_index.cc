@@ -33,27 +33,24 @@ void SparseIndex::put(string key, int offset) {
 
 void SparseIndex::Read() {
     //Reading only the map
-    struct kv {
-        string k;
-        int v;
-    };
-    struct kv T;
-    while(in_index_.read((char *) &T, sizeof(T))) {
-        this->sparse_index_[T.k] = T.v;
+    int size = 0;
+    int v = 0;
+    char k[129];
+    while(in_index_.read((char*)&size, sizeof(int))) {
+        in_index_.read(k, size);
+        k[size] = '\0';
+        in_index_.read((char*)&v, sizeof(int));
+        this->sparse_index_[string(k)] = v;
     }
 }
 
 void SparseIndex::Write() {
     //Writing only the map
     for(auto it = sparse_index_.begin(); it!=sparse_index_.end(); it++) {
-        struct kv {
-            string k;
-            int v;
-        };
-        struct kv T;
-        T.k = it->first;
-        T.v = it->second;
-        out_index_.write((char *) &T, sizeof(T));
+        int size = it->first.length();
+        out_index_.write((char *) &size, sizeof(int));
+        out_index_.write(it->first.c_str(), size);
+        out_index_.write((char*)&(it->second), sizeof(int));        
     }
     out_index_.flush();
 }

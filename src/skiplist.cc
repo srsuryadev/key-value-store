@@ -373,7 +373,7 @@ insert_node_res SkipList::insert_node(node* new_node, node* prev_node,
         prev_node->value = 
             (char*)aligned_alloc(CACHE_LINE_SIZE, value.length() + 1);
         memcpy(prev_node->value, value.c_str(), value.length());
-        prev_node->value[value.length] = '\0';
+        prev_node->value[value.length()] = '\0';
         ret_val.prev = prev_node;
         ret_val.new_node = ((node*)(void*)DUPLICATE_KEY);
         return ret_val;

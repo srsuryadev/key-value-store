@@ -36,7 +36,8 @@
 * SIGACT-SIGOPS Symposium on Principles Of Distributed Computing, 2004)        *
 *                                                                              *
 *******************************************************************************/
-
+#ifndef SKIPLIST_H
+#define SKIPLIST_H
 #include <iostream>
 #include <cstdlib>
 #include <cstdint>
@@ -90,7 +91,7 @@ typedef struct insert_node_res insert_node_res;
 #define PT(x) (node*)(void*)(((uintptr_t)x >> 2) << 2)
 
 struct node {
-    char key[KEYLENGTH];
+    char* key;
     node* back_link;
     node* successor;
     node* up;
@@ -161,3 +162,5 @@ class SkipList {
         void try_mark(node* del_node);
         void enumerate(vector<string>* strings, node* x, string prefix);
 };
+
+#endif

@@ -12,8 +12,8 @@ WAL* WAL::GetInstance() {
     lock_guard<mutex> lock(WAL::_mutex);
     if (!wal) {
         wal = new WAL;
-        wal->CreateWriteStream();
-        wal->OpenReadStream();
+        //wal->CreateWriteStream();
+        //wal->OpenReadStream();
     }
     return wal;
 }

@@ -15,9 +15,10 @@ KeyValueStore::KeyValueStore() {
 
     // collate the existing logtables on recover
     LogTable::Merge();
-
+    cout << "goint to create WAL" << endl;
     // If the WAL has records use it to recover
     WAL *wal = WAL::GetInstance();
+    wal->OpenReadStream();
     WAL::Iterator *it = new WAL::Iterator(wal);
     while (it->HasNext()) {
         Record record = it->Next();
@@ -26,6 +27,10 @@ KeyValueStore::KeyValueStore() {
 
         current_skip_list->put(key, value);
     }
+    wal->CloseReadStream();
+    wal->CreateWriteStream();
+
+    cout << "created wal" << endl;
 
     _mutex.unlock();
 }
@@ -42,7 +47,7 @@ bool KeyValueStore::set(string key, string value) {
     wal->Append(record);
 
     current_skip_list->put(key, value);
-    if (++current_skip_list->count == CUT_OFF_COUNT) {
+    if (++current_skip_list->count >= CUT_OFF_COUNT) {
         // TODO: force first list to disk
         // use the other list
         _mutex.lock();
@@ -60,8 +65,9 @@ bool KeyValueStore::set(string key, string value) {
         LogTable logtable;
 
         list<Record> records = prev_skip_list->get_all_data();
+        cout << "write data to logtable" << endl;
         logtable.Write(records);
-
+       
         // reset the prevskip list
         prev_skip_list = 0;
         //Truncate the existing WAL and create a fresh

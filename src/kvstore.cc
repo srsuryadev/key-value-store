@@ -47,9 +47,10 @@ bool KeyValueStore::set(string key, string value) {
     wal->Append(record);
 
     current_skip_list->put(key, value);
-    if (++current_skip_list->count >= CUT_OFF_COUNT) {
+    if (++current_skip_list->count == CUT_OFF_COUNT) {
         // TODO: force first list to disk
         // use the other list
+        // we don't actually need a mutex because count is atomic
         _mutex.lock();
         if ((uintptr_t)current_skip_list == (uintptr_t)first_skip_list) {
             current_skip_list = second_skip_list;

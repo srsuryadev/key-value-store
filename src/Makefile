@@ -3,7 +3,7 @@ CFLAGS = -g -Wall -Wextra
 RM = rm -rf
 LDFLAGS = -L/usr/local/lib `pkg-config --libs protobuf grpc++`\
            -lgrpc++_reflection\
-           -ldl	-lboost_system
+           -ldl	-lboost_system -l pthread
 CPPFLAGS += `pkg-config --cflags protobuf grpc`
 CXXFLAGS += -std=c++17
 

@@ -2,14 +2,15 @@ CC = g++
 CFLAGS = -g -Wall -Wextra
 RM = rm -rf
 LDFLAGS = -L/usr/local/lib `pkg-config --libs protobuf grpc++`\
-           -Wl, -lgrpc++_reflection -Wl,\
-           -ldl
+           -lgrpc++_reflection\
+           -ldl	-lboost_system -l pthread
 CPPFLAGS += `pkg-config --cflags protobuf grpc`
 CXXFLAGS += -std=c++17
 
+BOOSTFLAGS = -lboost_system
 GRPC_CPP_PLUGIN = grpc_cpp_plugin
 GRPC_CPP_PLUGIN_PATH ?= `which $(GRPC_CPP_PLUGIN)`
-DB = kvstore.o value.o record.o wal.o log_table.o skiplist.o
+DB = kvstore.o value.o record.o wal.o log_table.o skiplist.o sparse_index.o
 
 default: kvclient kvserver
 

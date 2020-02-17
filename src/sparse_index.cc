@@ -1,6 +1,6 @@
 #include "sparse_index.h"
 
-const int SparseIndex::SPARSENESS = 2;
+const int SparseIndex::SPARSENESS = 1000;
 
 SparseIndex::SparseIndex(string id, bool is_write) {
     this->id_ = id;
@@ -19,13 +19,13 @@ int SparseIndex::GetOffset(string key) {
     if(it == sparse_index_.begin())
         return 0;
     it--;
-    cout<<"Returning offset: "<<it->second<<endl;
+    //cout<<"Returning offset: "<<it->second<<endl;
     return it->second;
 }
 
 void SparseIndex::put(string key, int offset) {
     if(counter % SPARSENESS == 0) {
-        cout<<"Sparse Index created at this point --- "<<key<<" "<<offset<<endl;
+        //cout<<"Sparse Index created at this point --- "<<key<<" "<<offset<<endl;
         sparse_index_[key] = offset;
     }
     counter++;

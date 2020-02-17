@@ -2,6 +2,13 @@
 
 using namespace std;
 
+Value::Value(string val, long ts, bool delete_flag) {
+    this->value = val;
+    this->timestamp = ts;
+    this->deleted = delete_flag;
+}
+
+Value::Value() {}
 
 string Value::get_value() {
     return this->value;

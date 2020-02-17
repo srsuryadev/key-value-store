@@ -18,8 +18,11 @@ KeyValueStore::KeyValueStore() {
     cout << "goint to create WAL" << endl;
     // If the WAL has records use it to recover
     WAL *wal = WAL::GetInstance();
+    cout<<"WAL Created\n";
     wal->OpenReadStream();
+    cout<<"WAL Opened\n";
     WAL::Iterator *it = new WAL::Iterator(wal);
+    cout<<"Iter ready\n";
     while (it->HasNext()) {
         Record record = it->Next();
         string key = record.get_key();

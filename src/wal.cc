@@ -22,11 +22,13 @@ WAL* WAL::GetInstance() {
 void WAL::CreateWriteStream() {
      _mutex.lock();
     wal_out = fopen(this->file_name.c_str(), "w");
+cout<<"Write Stream Created\n";
      _mutex.unlock();
 }
 
 void WAL::OpenReadStream() {
     wal_in.open(this->file_name, ifstream::in);
+    cout<<wal_in.fail()<<endl;
 }
 
 void WAL::CloseWriteStream() {
@@ -53,6 +55,7 @@ void WAL::Append(Record record) {
     record.write(wal_out);
     _mutex.unlock();
     fsync(fileno(wal_out));
+cout<<"Synced write for wal\n";
 }
 
 WAL::Iterator::Iterator(WAL *_wal) {
@@ -62,18 +65,20 @@ WAL::Iterator::Iterator(WAL *_wal) {
 
 bool WAL::Iterator::HasNext() {
     //false if file not open
+    cout<<"HasNext\n";
     if(!wal->wal_in.is_open())
         return false;
-
+cout<<"File open]n";
     if(next_record != 0)
         return true;
 
     next_record = new Record;
+    cout<<"Gonna read rec\n";
     if(!next_record->read(&wal->wal_in)) {
         //If false because of checksum match, continue to read next records.
         return false;
     }
-    
+    cout<<next_record->get_key()<<endl;
     return true;
 }
 

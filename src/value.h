@@ -10,11 +10,12 @@ class Value {
 
     private:
         string value;
-        int timestamp;
+        long timestamp;
         bool deleted;
 
     public:
-
+        Value();
+        Value(string, long, bool);
         string get_value();
         long get_time();
         bool is_deleted();
@@ -27,3 +28,4 @@ class Value {
 };
 
 #endif
+

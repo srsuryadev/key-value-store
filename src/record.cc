@@ -17,42 +17,79 @@ Value Record::get_value() {
 }
 
 void Record::write(ofstream *out) {
-    //TODO: Shouldn't you write key here instead?
-    /*size_t len = value.size();
-    out.write(&len, sizeof(size_t));
-    out.write(value.c_str, len);
-    value.write(out);*/
     unsigned int checksum = CalculateChecksum(*this);
-    out->write((char *) &checksum, sizeof(checksum));
-    out->write((char *) this, sizeof(*this));
+    (*out) << checksum;
+    (*out) << key.size();
+    out->write(key.data(), key.size());
+    string val = value.get_value();
+    (*out) << val.size();
+    out->write(val.data(), val.size());
+    (*out) << value.get_time();
+    (*out) << value.is_deleted();
 }
 
 void Record::write(FILE* &out) {
     unsigned int checksum = CalculateChecksum(*this);
     fwrite(&checksum, sizeof(checksum), 1, out);
-    fwrite(this, sizeof(*this), 1, out);
+    int key_size = key.size();
+    fwrite(&key_size, sizeof(key_size), 1, out);
+    fwrite(key.data(), key_size, 1, out);
+    int val_size = value.get_value().size();
+    fwrite(&val_size, sizeof(val_size), 1, out);
+    fwrite(value.get_value().data(), val_size, 1, out);
+    long ts = value.get_time();
+    fwrite(&ts, sizeof(ts), 1, out);
+    bool deleted_flag = value.is_deleted();
+    fwrite(&deleted_flag, sizeof(deleted_flag), 1, out);
+cout<<"File write complete\n";
 }
 
 bool Record::read(ifstream *in) {
-    /*size_t len;
-    in.read(&len, sizeof(size_t));
-    char* value_arr = new char[len + 1];
-    in.read(value_arr, len);
-    value_arr[len] = '\0';
-    this.value = value_arr;
-    delete [] value_arr;
-    value.read(in);*/
-    if(in->eof())
-        return false;
+cout<<"Reading REcord\n";
+    //if(in->eof())
+    //    return false;
 
     unsigned int file_checksum;
-    in->read((char *) &file_checksum, sizeof(file_checksum));
+    (*in) >> file_checksum;
     if(in->fail())
         return false;
+cout<<"Checksum read\n";    
+    int str_size;
+    (*in) >> str_size;
+    if(in->fail())
+        return false;
+    string key;
+    key.resize(str_size);
+    in->read(&key[0], str_size);
+    if(in->fail())
+        return false;
+cout<<"Key read\n";
 
-    in->read((char *) this, sizeof(*this));
+    (*in) >> str_size;
     if(in->fail())
         return false;
+    string val;
+    val.resize(str_size);
+    in->read(&val[0], str_size);
+    if(in->fail())
+        return false;
+cout<<"Val read\n";
+
+    long ts;
+    (*in) >> ts;
+    if(in->fail())
+        return false;
+cout<<"Ts read\n";
+
+    bool delete_flag;
+    (*in) >> delete_flag;
+    if(in->fail())
+        return false;
+cout<<"Flag read\n";
+
+    Value value = Value(val, ts, delete_flag);
+    this->key = key;
+    this->value = value;
     
     if(file_checksum != CalculateChecksum(*this)) {
         cout<<"CHECKSUM MISMATCH\n";
@@ -74,3 +111,4 @@ unsigned int Record::CalculateChecksum(Record record) {
     crc32.process_bytes(&delete_flag, sizeof(delete_flag));
     return crc32.checksum();
 }
+

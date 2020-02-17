@@ -322,7 +322,7 @@ node* SkipList::insert(string key, string value) {
     node* next_node = result.next;
     if (string(prev_node->key) == key) {
         // update value and return DUPLICATE_KEY
-        std::free(prev_node->value);
+        //std::free(prev_node->value);
         prev_node->value = (char*)aligned_alloc(CACHE_LINE_SIZE, 
             value.length());
         memcpy(prev_node->value, value.c_str(), value.length());

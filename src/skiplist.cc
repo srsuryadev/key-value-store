@@ -40,15 +40,19 @@
 #include "skiplist.h"
 
 SkipList::SkipList() {
+    char* x_key = (char*)aligned_alloc(CACHE_LINE_SIZE, KEYLENGTH);
+    memset(x_key, 0, KEYLENGTH);
+    char* y_key = (char*)aligned_alloc(CACHE_LINE_SIZE, KEYLENGTH);
+    memset(y_key, -1U, KEYLENGTH);
     node* prev_x = NULL;
     node* prev_y = NULL;
     for (int i = 0; i <= MAXLEVEL; i++) {
         node* x = (node*)aligned_alloc(CACHE_LINE_SIZE, sizeof(node));
         head_tower[i] = x;
-        memset(x->key, 0, KEYLENGTH);
+        x->key = x_key;
         node* y = (node*)aligned_alloc(CACHE_LINE_SIZE, sizeof(node));
+        y->key = y_key;        
         tail_tower[i] = y;
-        memset(y->key, -1U, KEYLENGTH);
         x->value = y->value = NULL;
         x->back_link = NULL;
         y->back_link = x;
@@ -73,7 +77,25 @@ SkipList::SkipList() {
 }
 
 SkipList::~SkipList() {
-
+    node* x = head->successor;
+    while ((uintptr_t)x != (uintptr_t)tail) {
+        std::free(x->key);
+        std::free(x->value);
+        node* temp = x;
+        x = x->successor;
+        node* temp_up;
+        while ((temp_up = temp->up) != NULL) {
+            free(temp);
+            temp = temp_up;
+        }
+        free(temp);
+    }
+    std::free(head->key);
+    std::free(tail->key);
+    for (int i = 0; i <= MAXLEVEL; i++) {
+        free(head_tower[i]);
+        free(tail_tower[i]);
+    }
 }
 
 char SkipList::random_level() {
@@ -269,10 +291,13 @@ try_flag_node_res SkipList::try_flag_node(node* prev_node, node* target_node) {
 node* SkipList::create_new_node(string key, string value, node* down, 
     node* tower_root) {
     node* x = (node*)aligned_alloc(CACHE_LINE_SIZE, sizeof(node));
+    char* x_key = (char*)aligned_alloc(CACHE_LINE_SIZE, KEYLENGTH);
+    x->key = x_key;
     memset(x->key, 0, KEYLENGTH);
-    memcpy(x->key, key.c_str(), KEYLENGTH);
+    memcpy(x->key, key.c_str(), key.length());
     char* val = (char*)aligned_alloc(CACHE_LINE_SIZE, value.length());
     memcpy(val, value.c_str(), value.length());
+    x->up = NULL;
     x->value = val;
     x->down = NULL;
     x->tower_root = x;
@@ -285,11 +310,9 @@ node* SkipList::create_new_node(string key, node* down, node* tower_root) {
     x->up = NULL;
     x->down = down;
     x->successor = tail_tower[0];
-    if (down) {
-        down->up = x;
-    }
+    down->up = x;
     x->tower_root = tower_root;    
-    memcpy(x->key, tower_root->key, KEYLENGTH);
+    x->key = tower_root->key;
     return x;
 }
 
@@ -299,7 +322,7 @@ node* SkipList::insert(string key, string value) {
     node* next_node = result.next;
     if (string(prev_node->key) == key) {
         // update value and return DUPLICATE_KEY
-        //std::free(prev_node->value);
+        std::free(prev_node->value);
         prev_node->value = (char*)aligned_alloc(CACHE_LINE_SIZE, 
             value.length());
         memcpy(prev_node->value, value.c_str(), value.length());
@@ -317,7 +340,7 @@ node* SkipList::insert(string key, string value) {
         node* result = ins_result.new_node;
 
         if (((uintptr_t)result == DUPLICATE_KEY) && (current_level == 1)) {
-            //std::free(new_node);
+            std::free(new_node);
             return (node*)(void*)DUPLICATE_KEY;
         }
         if (EXTRACT_MARK(new_rnode) == 1) {
@@ -344,7 +367,7 @@ insert_node_res SkipList::insert_node(node* new_node, node* prev_node,
     node* next_node, string value, char current_level) {
     insert_node_res ret_val;
     if (string(prev_node->key) == string(new_node->key)) {
-        //std::free(prev_node->value);
+        std::free(prev_node->value);
         prev_node->value = 
             (char*)aligned_alloc(CACHE_LINE_SIZE, value.length());
         memcpy(prev_node->value, value.c_str(), value.length());
@@ -378,7 +401,7 @@ insert_node_res SkipList::insert_node(node* new_node, node* prev_node,
         prev_node = res.prev;
         next_node = res.next;
         if (string(prev_node->key) == string(new_node->key)) {
-            //std::free(prev_node->value);
+            std::free(prev_node->value);
             prev_node->value = 
                 (char*)aligned_alloc(CACHE_LINE_SIZE, value.length());
             memcpy(prev_node->value, value.c_str(), value.length());

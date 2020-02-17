@@ -10,6 +10,7 @@
 #include <cstdlib>
 #include <ctime>
 #include "bloom_filter.h"
+#include "sparse_index.h"
 #include "record.h"
 
 using namespace std;
@@ -39,6 +40,8 @@ class LogTable {
             this->bloom_filter = new BloomFilter( data_path_ .string() + "/" 
                                                     + "bloom_" + this->file_name , 
                                                         10000, true);
+            this->sparse_index = new SparseIndex( data_path_.string() + "/"
+                                                    + "sparse_" + this->file_name, true);
             out_logtable_.open(data_path_ .string() + "/" + this->file_name, 
                                                                     std::ofstream::out);
         }
@@ -48,8 +51,12 @@ class LogTable {
             this->bloom_filter = new BloomFilter( data_path_ .string() + "/" 
                                                     + "bloom_"+ this->file_name , 
                                                     10000, false);
+            this->sparse_index = new SparseIndex( data_path_.string() + "/"
+                                                    + "sparse_" + this->file_name, false);
             cout << "read bloom" <<endl;
+            //Load the index files
             this->bloom_filter->Read();
+            this->sparse_index->Read();
             in_logtable_.open(data_path_ .string() + "/"  + file_name, 
                                                                 std::ifstream::in);
         }
@@ -72,7 +79,7 @@ class LogTable {
     public:
 
         BloomFilter* bloom_filter;
-       
+        SparseIndex* sparse_index;
         string file_name;
 
         LogTable();
@@ -86,7 +93,7 @@ class LogTable {
         void Write(Record &record);
         void Discard();
 
-        Record* Search(string key);
+        Record* Search(string key, int file_offset);
         list<Record>* SearchPrefix(string key);
 
 
@@ -144,10 +151,8 @@ class LogTable {
                 }
 
                 // TODO: if present, seek to the nearest offset using the sparse index
-                
-                //Shouldn't this return a list rather than a single value?
-                //Is it Guaranteed that a key would be present only once in a log file?
-                Record* temp_record = it->Search(key);
+                int key_offset = it->sparse_index->GetOffset(key);
+                Record* temp_record = it->Search(key, key_offset);
                 if (temp_record && !temp_record->get_value().is_deleted()) {
                     if (record) {
                         if (record->get_value().get_time() <
@@ -221,7 +226,9 @@ class LogTable {
             logtable2.Discard();
 
             string file_name = merge_table->file_name;
+            //Writing the index files
             merge_table->bloom_filter->Write();
+            merge_table->sparse_index->Write();
             delete merge_table;
 
             string last_file_name = "";
@@ -235,6 +242,7 @@ class LogTable {
                 file_name = merge_table->file_name;
                 
                 merge_table->bloom_filter->Write();
+                merge_table->sparse_index->Write();
                 delete merge_table;
                 it++;
             }

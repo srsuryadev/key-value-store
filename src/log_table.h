@@ -39,7 +39,7 @@ class LogTable {
             string path = data_path_ .string() + "/" + this->file_name;
             this->bloom_filter = new BloomFilter( data_path_ .string() + "/" 
                                                     + "bloom_" + this->file_name , 
-                                                        10000, true);
+                                                        100000, true);
             this->sparse_index = new SparseIndex( data_path_.string() + "/"
                                                     + "sparse_" + this->file_name, true);
             out_logtable_.open(data_path_ .string() + "/" + this->file_name, 
@@ -50,7 +50,7 @@ class LogTable {
             this->file_name = file_name;
             this->bloom_filter = new BloomFilter( data_path_ .string() + "/" 
                                                     + "bloom_"+ this->file_name , 
-                                                    10000, false);
+                                                    100000, false);
             this->sparse_index = new SparseIndex( data_path_.string() + "/"
                                                     + "sparse_" + this->file_name, false);
             cout << "read bloom" <<endl;

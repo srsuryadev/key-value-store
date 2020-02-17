@@ -12,7 +12,7 @@
 using namespace std;
 
 // count at which to abandon current skiplist
-#define CUT_OFF_COUNT 10000
+#define CUT_OFF_COUNT 100000
 
 class KeyValueStore {
     public:

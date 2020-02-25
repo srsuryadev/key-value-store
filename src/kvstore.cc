@@ -29,7 +29,7 @@ KeyValueStore::KeyValueStore() {
         string key = record.get_key();
         string value = record.get_value().get_value();
 
-        //current_skip_list->put(key, value);
+        current_skip_list->put(key, value);
     }
     wal->CloseReadStream();
     wal->CreateWriteStream();

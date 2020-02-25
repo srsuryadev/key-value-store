@@ -57,6 +57,7 @@ class BloomFilter {
                 int hash_index = hash_func(elem, i) % size;
                 bloom_filter[hash_index] = true;
             }
+            cout<<"ADDED to bloom filter\n";
         }
 
         bool check(string elem) {
@@ -82,7 +83,7 @@ class BloomFilter {
         }
 
         void Write() {
-            cout << "writing bloom data" << endl;
+            cout << "writing bloom data for " <<this->id_ << endl;
             out_index_.write((char*)&this->size, sizeof(int));
             for (int i = 0; i < this->size; i++) {
                 bool value = this->bloom_filter[i];

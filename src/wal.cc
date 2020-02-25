@@ -58,11 +58,14 @@ void WAL::Append(Record record) {
 WAL::Iterator::Iterator(WAL *_wal) {
     wal = _wal;
     next_record = 0;
+    counter = 0;
+    T = 0;
     FILE *p_file = NULL;
     p_file = fopen(wal->file_name.c_str(), "r");
-    fseek(p_file,0,SEEK_END);
-    file_size = ftell(p_file);
-    //cout<<"File size: "<<file_size<<endl;
+    struct stat info;
+    stat(wal->file_name.c_str(), &info);
+    file_size = info.st_size;
+    cout<<"File size: "<<file_size<<endl;
     fclose(p_file);
 }
 
@@ -73,7 +76,7 @@ bool WAL::Iterator::HasNext() {
         return false;
     }
 
-    if(ftell(wal->wal_in) == file_size) {
+    if(T == file_size) {
         cout<<"EOF\n";
         return false;
     }
@@ -86,7 +89,7 @@ bool WAL::Iterator::HasNext() {
         //If false because of checksum match, continue to read next records.
         return false;
     }
-    
+    T += sizeof(*next_record);
     return true;
 }
 
@@ -94,7 +97,9 @@ Record WAL::Iterator::Next() {
     Record record = *next_record;
     delete next_record;
     next_record = 0;
-    //cout<<"Sending "<<record.get_key()<<endl;
+    counter++;
+    if(counter % 10000 == 0)
+        cout<<"Sending "<<counter<<endl;
     return record;
 }
 

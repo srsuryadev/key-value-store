@@ -49,13 +49,14 @@ LogTable:: ~LogTable() {
 void LogTable::Write(list<Record> &records) {
     std::list<Record>::iterator it;
     for (it = records.begin(); it != records.end(); it++) {
-        this->bloom_filter->add(it->get_key());
+        cout<<"write record with key: "<<it->get_key()<<endl;
+        //this->bloom_filter->add(it->get_key());
         this->sparse_index->put(it->get_key(), out_logtable_.tellp());
         it->write(&this->out_logtable_);
     }   
     cout<< "written data" << endl;
     this->out_logtable_.flush();
-    this->bloom_filter->Write();
+    //this->bloom_filter->Write();
     this->sparse_index->Write();
 }
 

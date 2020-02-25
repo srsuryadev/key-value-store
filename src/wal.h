@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <mutex>
+#include <sys/stat.h>
 
 class WAL {
     private:
@@ -29,6 +30,8 @@ class WAL {
                 WAL *wal;
                 Record *next_record;
                 size_t file_size;
+                int counter;
+                int T;
 
             public:
                 Iterator(WAL*);

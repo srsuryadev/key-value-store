@@ -29,6 +29,7 @@ void SparseIndex::put(string key, int offset) {
         sparse_index_[key] = offset;
     }
     counter++;
+    cout<<"Added to sparse index\n";
 }
 
 void SparseIndex::Read() {
@@ -46,6 +47,7 @@ void SparseIndex::Read() {
 
 void SparseIndex::Write() {
     //Writing only the map
+    cout << "writing sparse index for " <<this->id_ << endl;
     for(auto it = sparse_index_.begin(); it!=sparse_index_.end(); it++) {
         int size = it->first.length();
         out_index_.write((char *) &size, sizeof(int));

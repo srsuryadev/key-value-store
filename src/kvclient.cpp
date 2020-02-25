@@ -124,7 +124,7 @@ void* runClient(void *args) {
     for(i=0; i<NUM_OP_PER_THREAD; i++) {
         int op = WRITE_OP;
         if(MODE == 2) {
-            op = rand() % 2;
+            op = rand() % 3;
         } else if (MODE == 1) {
             op = GET_OP;
         }

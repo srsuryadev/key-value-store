@@ -40,17 +40,17 @@
 #include "skiplist.h"
 
 SkipList::SkipList() {
-    char* x_key = (char*)aligned_alloc(CACHE_LINE_SIZE, KEYLENGTH);
+    char* x_key = (char*)malloc(KEYLENGTH);
     memset(x_key, 0, KEYLENGTH);
-    char* y_key = (char*)aligned_alloc(CACHE_LINE_SIZE, KEYLENGTH);
+    char* y_key = (char*)malloc(KEYLENGTH);
     memset(y_key, -1U, KEYLENGTH);
     node* prev_x = NULL;
     node* prev_y = NULL;
     for (int i = 0; i <= MAXLEVEL; i++) {
-        node* x = (node*)aligned_alloc(CACHE_LINE_SIZE, sizeof(node));
+        node* x = (node*)malloc(sizeof(node));
         head_tower[i] = x;
         x->key = x_key;
-        node* y = (node*)aligned_alloc(CACHE_LINE_SIZE, sizeof(node));
+        node* y = (node*)malloc(sizeof(node));
         y->key = y_key;        
         tail_tower[i] = y;
         x->value = y->value = NULL;
@@ -290,12 +290,12 @@ try_flag_node_res SkipList::try_flag_node(node* prev_node, node* target_node) {
 
 node* SkipList::create_new_node(string key, string value, node* down, 
     node* tower_root) {
-    node* x = (node*)aligned_alloc(CACHE_LINE_SIZE, sizeof(node));
-    char* x_key = (char*)aligned_alloc(CACHE_LINE_SIZE, KEYLENGTH);
+    node* x = (node*)malloc(sizeof(node));
+    char* x_key = (char*)malloc(KEYLENGTH);
     x->key = x_key;
     memset(x->key, 0, KEYLENGTH);
     memcpy(x->key, key.c_str(), key.length());
-    char* val = (char*)aligned_alloc(CACHE_LINE_SIZE, value.length() + 1);
+    char* val = (char*)malloc(value.length() + 1);
     memcpy(val, value.c_str(), value.length());
     val[value.length()] = '\0';
     x->up = NULL;
@@ -306,7 +306,7 @@ node* SkipList::create_new_node(string key, string value, node* down,
 }
 
 node* SkipList::create_new_node(string key, node* down, node* tower_root) {
-    node* x = (node*)aligned_alloc(CACHE_LINE_SIZE, sizeof(node));
+    node* x = (node*)malloc(sizeof(node));
     x->value = tower_root->value;
     x->up = NULL;
     x->down = down;
@@ -324,7 +324,7 @@ node* SkipList::insert(string key, string value) {
     if (string(prev_node->key) == key) {
         // update value and return DUPLICATE_KEY
         //std::free(prev_node->value);
-        prev_node->value = (char*)aligned_alloc(CACHE_LINE_SIZE, 
+        prev_node->value = (char*)malloc(
             value.length() + 1);
         memcpy(prev_node->value, value.c_str(), value.length());
         prev_node->value[value.length()] = '\0';
@@ -371,7 +371,7 @@ insert_node_res SkipList::insert_node(node* new_node, node* prev_node,
     if (string(prev_node->key) == string(new_node->key)) {
         std::free(prev_node->value);
         prev_node->value = 
-            (char*)aligned_alloc(CACHE_LINE_SIZE, value.length() + 1);
+            (char*)malloc(value.length() + 1);
         memcpy(prev_node->value, value.c_str(), value.length());
         prev_node->value[value.length()] = '\0';
         ret_val.prev = prev_node;
@@ -406,7 +406,7 @@ insert_node_res SkipList::insert_node(node* new_node, node* prev_node,
         if (string(prev_node->key) == string(new_node->key)) {
             std::free(prev_node->value);
             prev_node->value = 
-                (char*)aligned_alloc(CACHE_LINE_SIZE, value.length() + 1);
+                (char*)malloc(value.length() + 1);
             memcpy(prev_node->value, value.c_str(), value.length());
             prev_node->value[value.length()] = '\0';
             ret_val.prev = prev_node;
@@ -475,8 +475,10 @@ vector<string> SkipList::get_keys_for_prefix(string prefix) {
 
 list<Record> SkipList::get_all_data() {
     list<Record> ret_val;
+    cout<<"HEAD NULL? "<<(head == 0)<<endl;
     node* x = head->successor;
     while ((uintptr_t)x != (uintptr_t)tail) {
+        cout<<"READ from skiplist "<<x->key<<endl;
         Record rec;
         Value val;
         val.set_value(string(x->value));

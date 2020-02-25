@@ -4,8 +4,8 @@ RM = rm -rf
 LDFLAGS = -L/usr/local/lib `pkg-config --libs protobuf grpc++`\
            -lgrpc++_reflection\
            -ldl	-lboost_system -l pthread
-CPPFLAGS += `pkg-config --cflags protobuf grpc`
-CXXFLAGS += -std=c++17
+CPPFLAGS += `pkg-config --cflags protobuf grpc` -g
+CXXFLAGS += -std=c++17 -g
 
 BOOSTFLAGS = -lboost_system
 GRPC_CPP_PLUGIN = grpc_cpp_plugin

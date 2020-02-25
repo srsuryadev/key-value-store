@@ -17,6 +17,7 @@ Value Record::get_value() {
 }
 
 void Record::write(ofstream *out) {
+    cout<<"Writing Record BEGIN\n";
     unsigned int checksum = CalculateChecksum(*this);
     out->write((char *) &checksum, sizeof(checksum));
     size_t key_size = key.size();
@@ -27,6 +28,7 @@ void Record::write(ofstream *out) {
     out->write(val.data(), val.size());
     (*out) << value.get_time();
     (*out) << value.is_deleted();
+    cout<<"Writing Record END\n";
 }
 
 void Record::write(FILE* &out) {
@@ -104,7 +106,6 @@ bool Record::read(FILE* &in) {
 
     unsigned int file_checksum;
     size_t x = fread(&file_checksum, sizeof(file_checksum), 1, in);
-    //cout<<in->fail()<<endl;
     if(x == 0 && (ferror(in) || feof(in)))
         return false;
     //cout<<file_checksum<<endl;
@@ -145,10 +146,10 @@ bool Record::read(FILE* &in) {
     this->value = value;
     
     if(file_checksum != CalculateChecksum(*this)) {
-        cout<<"CHECKSUM MISMATCH\n";
+        //cout<<"CHECKSUM MISMATCH\n";
         return false;
     } else {
-        cout<<"CHECKSUM MATCH\n";
+        //cout<<"CHECKSUM MATCH\n";
         return true;
     }
 }

@@ -24,6 +24,7 @@ KeyValueStore::KeyValueStore() {
     WAL::Iterator *it = new WAL::Iterator(wal);
     cout<<"Iter ready\n";
     while (it->HasNext()) {
+        //cout<<"Reading from WAL\n";
         Record record = it->Next();
         string key = record.get_key();
         string value = record.get_value().get_value();
@@ -56,30 +57,30 @@ bool KeyValueStore::set(string key, string value) {
         // we don't actually need a mutex because count is atomic
         _mutex.lock();
         if ((uintptr_t)current_skip_list == (uintptr_t)first_skip_list) {
+            cout<<"----------IF PART---------"<<endl;
             current_skip_list = second_skip_list;
             prev_skip_list = first_skip_list;
             first_skip_list = new SkipList();
         } else {
+            cout<<"----------ELSE PART---------"<<endl;
             current_skip_list = first_skip_list;
             prev_skip_list = second_skip_list;
             second_skip_list = new SkipList();
         }
+        list<Record> records = prev_skip_list->get_all_data();
+        // reset the prevskip list
+        delete prev_skip_list;
+        prev_skip_list = 0;
         _mutex.unlock();
         
         //TODO: In future, we can use another thread to put
         // the skiplist contents to the logtable;
         LogTable logtable;
-
-        list<Record> records = prev_skip_list->get_all_data();
         cout << "write data to logtable" << endl;
         logtable.Write(records);
-       
-        // reset the prevskip list
-        delete prev_skip_list;
-        prev_skip_list = 0;
-        //Truncate the existing WAL and create a fresh
-        wal->OpenReadStream();
         
+        //Truncate the existing WAL and create a fresh
+        //wal->OpenReadStream();
     }
     return true;
 }
